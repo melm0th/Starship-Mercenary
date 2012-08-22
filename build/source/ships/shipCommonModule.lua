@@ -3,7 +3,17 @@ local M = {}
 local weaponTypes = require "source.ships.weaponTypesModule"
 local collisionDetections = require "source.ships.collisionDetectionModule"
 
-local bullets = display.newGroup()
+local bullets
+
+local setup = function()
+	local gameDisplayModule = require "source.display.gameDisplayModule"
+	gameDisplayModule.getGameDisplayGroup( )
+	bullets = display.newGroup() 
+	
+	gameDisplayModule.getGameDisplayGroup():insert( bullets )
+end
+M.setup = setup
+
 local getBullets = function()
 	return bullets
 end
@@ -69,10 +79,16 @@ local shoot = function( ship )
 	function bullet:doRemove()
 		self:removeEventListener( "collision", isShot )
 		display.remove(self)
+		self = nil
 	end
 	
 	return true
 end
 M.shoot = shoot
+
+local destroy = function()
+	bullets:removeSelf(); bullets = nil
+end
+M.destroy = destroy
 
 return M

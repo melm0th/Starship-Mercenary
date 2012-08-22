@@ -11,85 +11,33 @@ local scene = storyboard.newScene()
 
 local physics = require "physics"
 
--- Touch event listener 
-
+-- listeners
 
 -- Called when the scene's view does not exist:
 function scene:createScene( event )
-	local screenGroup = self.view
 	physics.start()
 	physics.setPositionIterations( 16 )
 	physics.setGravity( 0, 0 )
+	
+	local gameModule = require "source.gameModule"
+	gameModule.setup(self.view)
 end
 
 
 -- Called immediately after scene has moved onscreen:
-function scene:enterScene( event )
-	local gameDisplayGroup = self.view
-
+function scene:enterScene( event )	
 	-- remove previous scene's view
 	storyboard.purgeScene( "source.scenes.levelSelectionScene" )
 	
-	local gameDisplayModule = require "source.display.gameDisplayModule"
-	local shipModule = require "source.ships.shipModule"
-	local isTouch = false
-	local touchEvent
-
-	gameDisplayModule.setGameDisplayGroup(gameDisplayGroup)
-	
-	local ship = shipModule.getShip()
-	gameDisplayGroup:insert( ship )
-	
-	gameDisplayModule.moveCamera(event)
-	
-	local hudModule = require("source.display.hudModule")
-
-	local enemyModule = require("source.ships.enemyModule")
-	enemyModule.buildEnemy("enemyTypeFighter1")
-	enemyModule.buildEnemy("enemyTypeFighter1")
-	enemyModule.buildEnemy("enemyTypeFighter1")
-
-	local function onMoveShip( event )
-		if isTouch == true then	shipModule.moveShip(touchEvent)	end
-		return true
-	end
-
-	local function onScreenTouch( event )
-		if event.phase == "began" then
-			touchEvent = event
-			isTouch = true
-		elseif event.phase == "moved" then
-			touchEvent = event
-		elseif event.phase == "ended" or event.phase == "cancelled" then
-			isTouch = false
-			shipModule.shipIsStopped()
-		end
-		return true
-	end
-	
-	local function gameLoop(event)
-		onMoveShip(event)
-		gameDisplayModule.moveCamera(event)
-		hudModule.updateHud(event)
-		enemyModule.moveEnemy(event)
-		shipModule.shootBullet()
-		enemyModule.enemyFire()
-	end
-	
-	Runtime:addEventListener( "enterFrame", gameLoop )
-	Runtime:addEventListener( "touch", onScreenTouch )
-	timer.performWithDelay( 1000, gameDisplayModule.checkBorders, 0 )
-	
+	local gameModule = require "source.gameModule"
+	gameModule.startGame()
 end
 
 
 -- Called when scene is about to move offscreen:
 function scene:exitScene( event )
-	
-	-- remove listeners
-	Runtime:removeEventListener( "enterFrame", gameLoop )
-	Runtime:removeEventListener( "touch", onScreenTouch )
-	
+	local gameModule = require "source.gameModule"
+	gameModule.endGame()
 end
 
 

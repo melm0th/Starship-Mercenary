@@ -4,15 +4,20 @@ local physics = require "physics"
 local utilityModule = require "source.utility.utilityModule"
 local physics = require "physics"
 local gameDisplayModule = require "source.display.gameDisplayModule"
-local gameDisplayGroup = gameDisplayModule.getGameDisplayGroup()
 local shipModule = require "source.ships.shipModule"
-local ship = shipModule.getShip()
 local enemyTypes = require "source.ships.enemyTypesModule"
 local collisionDetections = require "source.ships.collisionDetectionModule"
 local shipCommonModule = require "source.ships.shipCommonModule"
 
-local activeEnemies = display.newGroup()
-gameDisplayGroup:insert( activeEnemies )
+local activeEnemies, ship
+
+local setup = function()
+	ship = shipModule.getShip()
+	local gameDisplayGroup = gameDisplayModule.getGameDisplayGroup()
+	activeEnemies = display.newGroup()
+	gameDisplayGroup:insert( activeEnemies )
+end
+M.setup = setup
 
 local getActiveEnemies = function()
 	return activeEnemies
@@ -28,6 +33,7 @@ local buildEnemy = function(enemyType)
 	enemy.HP=enemy.startingHP
 	enemy["lastFired"] = math.random(0,2000)
 	
+	local gameDisplayGroup = gameDisplayModule.getGameDisplayGroup()
 	local healthBar = display.newRect( 0 , 0, enemy["healthBarWidth"] , 4 )
 	enemy.bar = healthBar
 	gameDisplayGroup:insert( healthBar )
@@ -49,9 +55,16 @@ local buildEnemy = function(enemyType)
 	end
 	
 	function enemy:doRemove()
-		if self.bar ~= nul then self.bar:removeSelf() end
-		if self.hudDisplay ~= nul then self.hudDisplay:removeSelf() end
+		if self.bar ~= nul then 
+			self.bar:removeSelf() 
+			self.bar = nil 
+		end
+		if self.hudDisplay ~= nul then 
+			self.hudDisplay:removeSelf()
+			self.hudDisplay = nil			
+		end
 		self:removeSelf()
+		self = nil
 	end
 	
 	local start = gameDisplayModule.getRandomStart()
@@ -115,6 +128,9 @@ local enemyFire = function( event )
 end
 M.enemyFire = enemyFire
 
-
+local destroy = function()
+	activeEnemies:removeSelf(); activeEnemies = nil
+end
+M.destroy = destroy
 
 return M

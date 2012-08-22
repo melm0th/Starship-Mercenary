@@ -10,49 +10,64 @@ local scene = storyboard.newScene()
 -- BEGINNING OF YOUR IMPLEMENTATION
 ---------------------------------------------------------------------------------
 
-local text1, text2
-
--- Touch event listener 
-local function onSceneTouch( event )
-	if event.phase == "began" then
-		
-		storyboard.gotoScene( "source.scenes.gameScene", "fade", 400  )
-		
-		return true
-	end
-end
+local text1
+local buttonTable = {}
 
 -- Called when the scene's view does not exist:
 function scene:createScene( event )
 	local screenGroup = self.view
 
-	text1 = display.newText( "Level1", 0, 0, native.systemFontBold, 24 )
+	text1 = display.newText( "Choose a level", 0, 0, native.systemFontBold, 24 )
 	text1:setTextColor( 255 )
 	text1:setReferencePoint( display.CenterReferencePoint )
 	text1.x, text1.y = display.contentWidth * 0.5, 50
 	screenGroup:insert( text1 )
 	
-	text2 = display.newText( "touch screen to start", 0, 0, native.systemFontBold, 16 )
-	text2.isVisible = false
-	text2:setTextColor( 255 )
-	text2:setReferencePoint( display.CenterReferencePoint )
-	text2.x, text2.y = display.contentWidth * 0.5, 100
-	screenGroup:insert( text2 )
 end
 
 
 -- Called immediately after scene has moved onscreen:
 function scene:enterScene( event )
-
+	local screenGroup = self.view
 	-- remove previous scene's view
-	storyboard.removeScene( "splashScene" )
+	local priorScene = storyboard.getPrevious()
+    storyboard.purgeScene( priorScene )
 	
-	local startTouchListener = function()
-		Runtime:addEventListener( "touch", onSceneTouch )
-		text2.isVisible = true
+	local widget = require "widget"
+	local levels = require "source.levels.levelModule"
+	local player = require "source.playerModule"
+	
+	local function onButtonRelease( event )
+		local button = event.target
+		player.level = button.id
+		player.wave = 0
+		storyboard.gotoScene( "source.scenes.gameScene", "fade", 400  )
 	end
-	
-	timer.performWithDelay( 3000, startTouchListener, 1 )
+
+	row = 1
+	column = 1
+	local buttonWidth = display.contentWidth/3 - 30
+	for k,level in ipairs(levels) do 		
+		local button = widget.newButton{
+			id = k,
+			label = level.name,
+			width = buttonWidth,
+			height = 28,
+			emboss = true,
+			cornerRadius = 8,
+			left = 30 + ((column - 1) * ( buttonWidth + 10 ) ),
+			top = 130 + ( row * 40 ),
+			onRelease = onButtonRelease
+		}
+		screenGroup:insert( button )
+		table.insert(buttonTable,button)
+		
+		column = column + 1
+		if column > 3 then
+			column = 1
+			row = row + 1
+		end
+	end
 	
 end
 
@@ -61,7 +76,10 @@ end
 function scene:exitScene( event )
 	-- remove touch listener for image
 	Runtime:removeEventListener( "touch", onSceneTouch )
-	
+	for k,button in ipairs(buttonTable) do
+		button:removeSelf()
+		button = nil
+	end
 end
 
 

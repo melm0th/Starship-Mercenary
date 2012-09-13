@@ -41,7 +41,7 @@ function scene:enterScene( event )
 		local button = event.target
 		player.level = button.id
 		player.wave = 0
-		storyboard.gotoScene( "source.scenes.gameScene", "fade", 400  )
+		storyboard.gotoScene( "source.scenes.gameScene", "fade", 800  )
 	end
 
 	row = 1

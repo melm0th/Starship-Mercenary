@@ -1,7 +1,6 @@
 local game = {}
 
-local isTouch = false
-local touchEvent, checkBordersTimer, checkLevelTimer
+local isTouch, touchEvent, checkBordersTimer, checkLevelTimer
 
 local function onMoveShip( event )
 	local shipModule = require "source.ships.shipModule"
@@ -27,7 +26,7 @@ local function checkLevel(event)
 	local levels = require "source.levels.levelModule"
 	if levels.levelComplete then
 		local storyboard = require( "storyboard" )
-		storyboard.gotoScene( "source.scenes.levelSelectionScene", "fade", 400  )
+		storyboard.gotoScene( "source.scenes.levelSelectionScene", "fade", 1200  )
 	end
 end
 
@@ -61,6 +60,7 @@ end
 game.startGame = startGame
 
 local setup = function( view )
+	isTouch = false
 	local gameDisplayModule = require "source.display.gameDisplayModule"
 	gameDisplayModule.setGameDisplayGroup( view )
 	local shipModule = require "source.ships.shipModule"	

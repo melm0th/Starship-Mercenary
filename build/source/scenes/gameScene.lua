@@ -18,9 +18,6 @@ function scene:createScene( event )
 	physics.start()
 	physics.setPositionIterations( 16 )
 	physics.setGravity( 0, 0 )
-	
-	local gameModule = require "source.gameModule"
-	gameModule.setup(self.view)
 end
 
 
@@ -30,6 +27,7 @@ function scene:enterScene( event )
 	storyboard.purgeScene( "source.scenes.levelSelectionScene" )
 	
 	local gameModule = require "source.gameModule"
+	gameModule.setup(self.view)
 	gameModule.startGame()
 end
 
@@ -38,6 +36,7 @@ end
 function scene:exitScene( event )
 	local gameModule = require "source.gameModule"
 	gameModule.endGame()
+	physics.stop()
 end
 
 

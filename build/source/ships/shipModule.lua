@@ -5,7 +5,7 @@ local collisionDetections = require "source.ships.collisionDetectionModule"
 local utilityModule = require "source.utility.utilityModule"
 local shipCommonModule = require "source.ships.shipCommonModule"
 
-local ship, exhaustIamge, shipImage
+local ship, exhaustIamge, shipImage, engineSound, engineSoundChannel
 
 -- AUDIO
 	
@@ -14,6 +14,7 @@ local engineSound = audio.loadSound( "audio/engine.wav" )
 local engineSoundChannel = 4
 
 local setup = function()
+	engineSound = audio.loadSound( "audio/engine.wav" )
 	ship = display.newGroup()
 
 	local shipImageSheet = graphics.newImageSheet( "graphics/ship1_ss.png",  {width = 50, height = 60, numFrames = 5} )
@@ -83,7 +84,7 @@ end
 local moveShip = function( event )
 	-- changes to get ship appear to be moving
 	if ship.isMoving == false then
-		audio.play( engineSound, { loops=-1, channel=4 }  )
+		engineSoundChannel = audio.play( engineSound, { loops=-1 }  )
 		exhaustIamge.isVisible = true
 		ship.isMoving = true
 	end
@@ -130,6 +131,8 @@ M.shootBullet = shootBullet
 
 local destroy = function()
 	ship:removeSelf(); ship = nil
+	audio.stop( engineSoundChannel )
+	audio.dispose( engineSound )
 end
 M.destroy = destroy
 
